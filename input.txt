@@ -1,0 +1,23 @@
+program test;
+
+var x : integer;
+var y : integer;
+
+begin
+
+    read(x);
+    y := 10;
+
+    if x > y then
+        write('X is greater');
+    else
+        write('Y is greater');
+
+    while x <> y do
+        x := x - 1;
+
+    y := x + y * 2 / 3;
+
+    ! This is a comment
+
+end.

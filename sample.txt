@@ -1,0 +1,22 @@
+program sample;
+
+var x : integer;
+var count : integer;
+var arr : array[5];
+
+begin
+    count := 0;
+    read(x);
+
+    if x > 0 then
+        write('Number is Positive')
+    else
+        write('Number is Negative');
+
+    while count < 5 do
+    begin
+        arr[count] := count * 2;
+        write('Value = ', arr[count]);
+        count := count + 1;
+    end;
+end
