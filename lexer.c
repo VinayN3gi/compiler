@@ -56,28 +56,27 @@ enum TokenType {
 
 int isKeyword(char *word)
 {
-    int size=sizeof(reserved_keywords)/sizeof(reserved_keywords[0]);
-    for(int i=0;i<size;i++)
-    {
-        for(int j=0;j<strlen(word);j++) 
-        {
-            char temp=tolower(word[j]);
-            word[j]=temp;
-        }
+    char temp[100];
+    strcpy(temp, word);
 
-        for(int i=0;i<size;i++)
-        {
-            if(strcmp(reserved_keywords[i],word)==0) return 1;
-        }
+    for(int j = 0; j < strlen(temp); j++)
+        temp[j] = tolower(temp[j]);
+
+    int size = sizeof(reserved_keywords)/sizeof(reserved_keywords[0]);
+
+    for(int i = 0; i < size; i++)
+    {
+        if(strcmp(reserved_keywords[i], temp) == 0)
+            return 1;
     }
     return 0;
 }
 
 
 
-int main()
+int runLexer()
 {
-    FILE *fp=fopen("input.txt","r");
+    FILE *fp=fopen("input2.txt","r");
     
     if(fp==NULL)
     {
@@ -101,17 +100,17 @@ int main()
         
         else if(isalpha(ch)) // scan for keyword or identifier
         {
-            buffer[index++]=ch;
+            index = 0;
             while(isalnum(ch))
             {
-                buffer[index++]=ch;
-                ch=fgetc(fp);
+                buffer[index++] = ch;
+                ch = fgetc(fp);
             }
-            buffer[index]='\0';
+            buffer[index] = '\0';
             index=0;
 
             if(isKeyword(buffer)==1) insert("KEYWORD",buffer,line);
-            else insert("INDETIFIER",buffer,line);
+            else insert("IDENTIFIER",buffer,line);
             fseek(fp,-1,SEEK_CUR);
         }
 
@@ -174,14 +173,68 @@ int main()
             insert("RBRACKET","]",line);
 
 
-        //comment , numbers , sting and arithmatic operator remainging
-    
+        else if(ch == '\'')
+        {
+            buffer[index++] = ch;
+
+            while((ch = fgetc(fp)) != '\'' )
+            {
+                if(ch == '\n' || ch == EOF)
+                {
+                    printf("Unterminated string at line %d\n", line);
+                    break;
+                }
+
+                buffer[index++] = ch;
+            }
+
+            buffer[index++] = '\'';
+            buffer[index] = '\0';
+            index = 0;
+
+            insert("STRING", buffer, line);
+        }
+
+        else if(ch == '+') insert("PLUS", "+", line);
+        else if(ch == '-') insert("MINUS", "-", line);
+        else if(ch == '*') insert("MULTIPLY", "*", line);
+        else if(ch == '/') insert("DIVIDE", "/", line);
+        
+        else if(ch == '!')
+        {
+            while(ch != '\n' && ch != EOF)
+                ch = fgetc(fp);
+
+            line++;
+        }
+
+        else if(isdigit(ch))
+        {
+            index = 0;
+            buffer[index++] = ch;
+
+            while(isdigit(ch = fgetc(fp)))
+                buffer[index++] = ch;
+
+            if(isalpha(ch))
+            {
+                printf("Lexical Error at line %d: Invalid number format\n", line);
+            }
+
+            buffer[index] = '\0';
+            ungetc(ch, fp);
+
+            insert("NUMBER", buffer, line);
+        }
+
+        else if(ch == '.')
+        {
+            insert("DOT", ".", line);
+        }
+            
         else
         {
             printf("Lexical Error at line %d : Unknown character %c\n",line,ch);
         }
     }
-
-    display();
-
 }

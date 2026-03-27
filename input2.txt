@@ -1,0 +1,2 @@
+program test;
+a := 5;
