@@ -76,7 +76,7 @@ int isKeyword(char *word)
 
 int runLexer()
 {
-    FILE *fp=fopen("input2.txt","r");
+    FILE *fp=fopen("input.txt","r");
     
     if(fp==NULL)
     {

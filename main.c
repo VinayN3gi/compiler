@@ -14,17 +14,9 @@ int main()
 
     current = head;
 
-    printf("\nRunning Parser...\n");
+    printf("\nRunning Parser + ICG...\n");
 
     parseProgram();
-
-    while(current != NULL)
-    {
-        if(strcmp(current->type, "IDENTIFIER") == 0)
-            parseAssignment();
-        else
-            advance();
-    }
 
     return 0;
 }
