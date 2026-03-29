@@ -2,18 +2,28 @@
 #include <string.h>
 #include <stdlib.h>
 #include "parser.h"
+#include "icg.h"
 
 Token *current;
 
-// -------- TEMP VARIABLES --------
+// -------- TEMP + LABEL --------
 int tempCount = 1;
+int labelCount = 1;
 
 char* newTemp()
 {
-    static char temp[10];
+    char *temp = (char*)malloc(10);
     sprintf(temp, "t%d", tempCount++);
-    return strdup(temp);
+    return temp;
 }
+
+char* newLabel()
+{
+    char *label = (char*)malloc(10);
+    sprintf(label, "L%d", labelCount++);
+    return label;
+}
+
 
 // -------- BASIC --------
 
@@ -23,15 +33,18 @@ void advance()
         current = current->next;
 }
 
+int errorFlag = 0;
+
 void error(char *msg)
 {
     printf("Syntax Error at line %d: %s\n", current->line, msg);
-    exit(1);
+    errorFlag = 1;
+    advance(); // continue parsing
 }
 
 void match(char *type)
 {
-    if(current != NULL && strcmp(current->type, type) == 0)
+    if(current && strcmp(current->type, type) == 0)
         advance();
     else
         error("Unexpected token");
@@ -78,7 +91,10 @@ char* parseTerm()
         char *right = parseFactor();
 
         char *temp = newTemp();
-        printf("%s = %s %s %s\n", temp, left, op, right);
+
+        char code[100];
+        sprintf(code, "%s = %s %s %s", temp, left, op, right);
+        emit(code);
 
         left = temp;
     }
@@ -101,12 +117,15 @@ char* parseExpression()
         char *right = parseTerm();
 
         char *temp = newTemp();
-        printf("%s = %s %s %s\n", temp, left, op, right);
+
+        char code[100];
+        sprintf(code, "%s = %s %s %s", temp, left, op, right);
+        emit(code);
 
         left = temp;
     }
 
-    // relational
+    // relational operators
     if(current &&
       (strcmp(current->type,"GT")==0 ||
        strcmp(current->type,"LT")==0 ||
@@ -122,7 +141,10 @@ char* parseExpression()
         char *right = parseExpression();
 
         char *temp = newTemp();
-        printf("%s = %s %s %s\n", temp, left, op, right);
+
+        char code[100];
+        sprintf(code, "%s = %s %s %s", temp, left, op, right);
+        emit(code);
 
         return temp;
     }
@@ -142,7 +164,9 @@ void parseAssignment()
 
     char *rhs = parseExpression();
 
-    printf("%s = %s\n", lhs, rhs);
+    char code[100];
+    sprintf(code, "%s = %s", lhs, rhs);
+    emit(code);
 }
 
 void parseRead()
@@ -171,7 +195,12 @@ void parseIf()
     match("KEYWORD"); // if
     char *cond = parseExpression();
 
-    printf("IF %s GOTO L1\n", cond);
+    char *L1 = newLabel();
+    char *L2 = newLabel();
+
+    char code[100];
+    sprintf(code, "IF %s GOTO %s", cond, L1);
+    emit(code);
 
     match("KEYWORD"); // then
     parseStatement();
@@ -181,34 +210,49 @@ void parseIf()
 
     if(current && strcmp(current->value,"else")==0)
     {
-        printf("GOTO L2\n");
-        printf("L1:\n");
+        sprintf(code, "GOTO %s", L2);
+        emit(code);
 
-        match("KEYWORD");
+        sprintf(code, "%s:", L1);
+        emit(code);
+
+        match("KEYWORD"); // else
         parseStatement();
 
-        printf("L2:\n");
+        sprintf(code, "%s:", L2);
+        emit(code);
     }
     else
     {
-        printf("L1:\n");
+        sprintf(code, "%s:", L1);
+        emit(code);
     }
 }
 
 void parseWhile()
 {
-    printf("Lstart:\n");
+    char *Lstart = newLabel();
+    char *Lend = newLabel();
+
+    char code[100];
+
+    sprintf(code, "%s:", Lstart);
+    emit(code);
 
     match("KEYWORD"); // while
     char *cond = parseExpression();
 
-    printf("IF NOT %s GOTO Lend\n", cond);
+    sprintf(code, "IF NOT %s GOTO %s", cond, Lend);
+    emit(code);
 
     match("KEYWORD"); // do
     parseStatement();
 
-    printf("GOTO Lstart\n");
-    printf("Lend:\n");
+    sprintf(code, "GOTO %s", Lstart);
+    emit(code);
+
+    sprintf(code, "%s:", Lend);
+    emit(code);
 }
 
 void parseStatement()
