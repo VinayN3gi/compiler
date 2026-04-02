@@ -1,2 +1,10 @@
-program test;
-a := 5;
+program simple;
+var a : integer;
+var b : integer;
+var c : integer;
+begin
+    read(a);
+    read(b);
+    c := a + b;
+    write(c);
+end.

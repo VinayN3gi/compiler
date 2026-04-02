@@ -1,23 +1,17 @@
 program test;
-
 var x : integer;
 var y : integer;
-
+var z : integer;
 begin
-
     read(x);
-    y := 10;
-
-    if x > y then
-        write('X is greater');
-    else
-        write('Y is greater');
-
-    while x <> y do
+    read(y);
+    z := 5;
+    x := x + 1;
+    y := y + z;
+    while x > 0 do
         x := x - 1;
-
-    y := x + y * 2 / 3;
-
-    ! This is a comment
-
+    if y > z then
+        write('y is big');
+    z := x + y;
+    write(z);
 end.

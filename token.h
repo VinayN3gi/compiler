@@ -8,7 +8,7 @@ typedef struct Token {
     struct Token *next;
 } Token;
 
-// Head pointer (extern because defined in token.c)
+// Head pointer (defined in token.c)
 extern Token *head;
 
 // Function declarations

@@ -4,6 +4,7 @@
 #include "token.h"
 
 extern Token *current;
+extern int errorFlag;
 
 void advance();
 void match(char *type);
