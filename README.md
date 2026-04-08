@@ -15,28 +15,8 @@ A complete and integrated compiler pipeline for a custom Pascal-style programmin
 - Build System: GNU Make
 - Compiler: GCC
 
-## Folder Structure
-.
-├── main.c           # Main driver orchestrating the pipeline
-├── lexer.c          # Tokenizes input and identifies lexical units
-├── lexer.h          # Lexer definitions
-├── parser.c         # Recursive-descent parser and ICG driver
-├── parser.h         # Parser definitions
-├── icg.c            # Generates three-address intermediate code
-├── icg.h            # ICG definitions
-├── codegen.c        # Translates ICG into assembly instructions
-├── codegen.h        # Code generator definitions
-├── vm.c             # Interprets and executes intermediate code
-├── vm.h             # VM definitions
-├── token.c          # Manages the linked-list for token storage
-├── token.h          # Token structure definitions
-├── input.txt        # Sample Pascal-style source code input
-└── Makefile         # Build configuration
-
 ## Setup Instructions
 1. Clone the project
-   git clone https://github.com/your-username/pascal-compiler.git
-   cd pascal-compiler
 
 2. Build the project
    make
